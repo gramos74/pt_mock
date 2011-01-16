@@ -11,6 +11,9 @@
  * pt_mock
  *
  * @author     Gabriel Ramos <gabi@gabiramos.com>
+ * 
+ * Original idea of Mathias Biilmann [http://mathias-biilmann.net/]
+ *
  */
 
 // ---------------------------------------------------------------
