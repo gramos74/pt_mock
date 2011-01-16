@@ -1,0 +1,79 @@
+
+pt_mock
+--------------------------------------------------------------------------------
+
+This class works with PHP 5.x.
+In order to run the tests, phpunit is required.
+
+This class provides a way to mock objects when testing. Makes it simple to
+simulate method calls returning data based on parameters. Can raise exceptions
+instead of return data.
+
+Source in [https://github.com/gramos74/pt_mock]
+
+
+
+
+Examples
+--------------------------------------------------------------------------------
+
+We have a method class that receives a object as parameter. Inside this method
+we will call the object method 'method_mock' with parameter 'a'
+and we expect that it returns 'b'.
+
+    class class_a {
+
+        function my_method(class_b) {
+            return class_b->method_mock('a');
+        }
+
+    }
+
+    $class_b = new pt_mock('Class B');
+    $class_b->expects('method_mock')->with('a')->returns('b');
+
+    $class_a = new class_a();
+    echo $class_a->my_method($class_b);  // ----> 'b'
+
+
+If you want to test that the method is called two times:
+
+    $class_b->expects('method_mock')->with('a')->times(2)->returns('b');
+
+
+Sometimes you don't want to test if a method is called, you only want that if a
+method is called the mock object returns a value based on parameters.
+
+
+    $class_b->stubs('method_mock')->with('a')->returns('b');
+
+    echo $class_b->method_mock('a') ---> 'b'
+    echo $class_b->method_mock('a') ---> 'b'
+    echo $class_b->method_mock('a') ---> 'b'
+    echo $class_b->method_mock('a') ---> 'b'
+    .......
+
+
+And sometimes you want to raise a exception instead of to return data.
+
+    $class_b->stubs('method_mock')->with('a')->raises(new Exception());
+
+    echo $class_b->method_mock('a') ---> raises a exception
+
+
+
+
+Credits
+--------------------------------------------------------------------------------
+
+Thanks a lot to Mathias Biilmann by the original idea. Was a awesome experience
+work together !
+
+
+
+
+License
+--------------------------------------------------------------------------------
+
+Copyright (c) 2011 Released under the MIT license (see MIT-LICENSE)
+Gabriel Ramos <gabi@gabiramos.com>
