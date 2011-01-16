@@ -36,6 +36,12 @@ and we expect that it returns 'b'.
     echo $class_a->my_method($class_b);  // ----> 'b'
 
 
+To check that all expectations have been accomplished :
+
+    $class_b->verify();     // for a instance of pt_mock
+    pt_mock::verify_all();  // for all mocks instantiated 
+
+
 If you want to test that the method is called two times:
 
     $class_b->expects('method_mock')->with('a')->times(2)->returns('b');
