@@ -1,0 +1,5 @@
+Release 1.0.1
+-------------
+
+ * Improved message errors.
+   Added mock name to error lines.

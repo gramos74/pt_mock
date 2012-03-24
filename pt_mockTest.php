@@ -12,7 +12,7 @@ class pt_mockTest extends PHPUnit_Framework_TestCase {
   
   
   public function test_calling_pt_mock_without_expectations_and_stubs() {
-    $error  = "Can not find any stub or expecation for call [any_non_declared_method] with arguments: 
+    $error  = "[Test]\n\nCannot find any stub or expecation for call [any_non_declared_method] with arguments: 
 Array
 (
 )
@@ -31,14 +31,16 @@ Array
   }
   
   public function test_calling_pt_mock_with_stub_but_bad_arguments() {
-    $error = "Expected parameters for [method]: 
+    $error = "[Test]
+
+Expected parameters for [method]: 
 Array
 (
     [0] => param1
     [1] => param2
 )
 
- But receibed :Array
+ But received :Array
 (
     [0] => param1
 )
@@ -60,7 +62,9 @@ Array
 
 
   public function test_calling_pt_mock_with_two_stubs_but_bad_arguments() {
-    $error = "Can not match any stub or expecation for call [method] with arguments: 
+    $error = "[Test]
+
+Cannot match any stub or expecation for call [method] with arguments: 
 Array
 (
     [0] => param1
@@ -121,7 +125,7 @@ Array
     try {
       $this->assertFalse(pt_mock::verify_all());  
     } catch (pt_mock_exception $e) {
-      $this->assertEquals("[Test]: Method (method) expected to be called 1 times, but called 0", $e->getMessage());
+      $this->assertEquals("[Test]\n\nMethod (method) expected to be called 1 times, but called 0", $e->getMessage());
       return true;
     }
     $this->fail("Exception expected");  
@@ -148,7 +152,7 @@ Array
     try {
       $mock->verify();
     } catch (pt_mock_exception $e) {
-      $this->assertEquals("[Test]: Method (method) expected to be called 2 times, but called 1", $e->getMessage());
+      $this->assertEquals("[Test]\n\nMethod (method) expected to be called 2 times, but called 1", $e->getMessage());
       return true;
     }
     
@@ -164,7 +168,7 @@ Array
     try {
       $mock->method("param1");
     } catch (pt_mock_exception $e) {
-      $this->assertEquals("Method (method) called but is expected to not be called", $e->getMessage());
+      $this->assertEquals("[Test]\n\nMethod (method) called but is expected to not be called", $e->getMessage());
       return true;
     }
     $this->fail("Exception expected");

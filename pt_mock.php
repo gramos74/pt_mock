@@ -82,7 +82,7 @@ class pt_mock extends pt_mock_common {
 
   public function expects($method_name) {
     $this->_log('debug',"Defined ({$method_name}) as expectation");
-    $expect = new pt_mock_expectation($method_name, $this->_logger);
+    $expect = new pt_mock_expectation($this->_name, $method_name, $this->_logger);
     $this->_expects[$method_name][] = $expect;
     return $expect;
   }
@@ -90,7 +90,7 @@ class pt_mock extends pt_mock_common {
 
   public function stubs($method_name) {
     $this->_log('debug',"Defined ({$method_name}) as stub");
-    $stub = new pt_mock_stub($method_name, $this->_logger);
+    $stub = new pt_mock_stub($this->_name, $method_name, $this->_logger);
     $this->_stubs[$method_name][] = $stub;
     return $stub;
   }
@@ -134,7 +134,7 @@ class pt_mock extends pt_mock_common {
         try {
           $expect->verify();
         } catch (pt_mock_exception $e) {
-          $this->_errors[] = "[{$this->_name}]: ".$e->getMessage();
+          $this->_errors[] = $e->getMessage();
         }
       }
     }
@@ -178,18 +178,18 @@ class pt_mock extends pt_mock_common {
       if (isset($options['_null_'])) return $options['_null_']->_get_result_of_call();
 
       if (count($options) == 0) {
-        $message = "Can not find any stub or expecation for call [{$name}] with arguments: \n".print_r($args,true);
+        $message = "[{$this->_name}]\n\nCannot find any stub or expecation for call [{$name}] with arguments: \n".print_r($args,true);
         $this->_errors[] = "[{$this->_name}]: {$message}";
         throw new pt_mock_exception($message);
 
       } else if (count($options) == 1) {
         $option = array_shift($options);
-        $message = "Expected parameters for [{$name}]: \n".print_r($option->_get_args(),true)."\n But receibed :".print_r($args,true);
+        $message = "[{$this->_name}]\n\nExpected parameters for [{$name}]: \n".print_r($option->_get_args(),true)."\n But received :".print_r($args,true);
         $this->_errors[] = "[{$this->_name}]: {$message}";
         throw new pt_mock_exception($message);
 
       } else {
-        $message  = "Can not match any stub or expecation for call [{$name}] with arguments: \n".print_r($args,true)."\n";
+        $message  = "[{$this->_name}]\n\nCannot match any stub or expecation for call [{$name}] with arguments: \n".print_r($args,true)."\n";
         $message .= "Similar expectations are :\n";
         foreach($options as $option) {
           $message .= get_class($option)." with args:\n".print_r($option->_get_args(),true)."\n";
@@ -215,6 +215,7 @@ class pt_mock extends pt_mock_common {
 // ---------------------------------------------------------------
 class pt_mock_stub extends pt_mock_common {
 
+  protected $_mock_name;
   protected $_method_name;
   protected $_args;
   protected $_hash;
@@ -222,8 +223,9 @@ class pt_mock_stub extends pt_mock_common {
   protected $_exception_to_raise;
 
 
-  public function __construct($method_name, $logger = null) {
+  public function __construct($mock_name, $method_name, $logger = null) {
     parent::__construct($logger);
+    $this->_mock_name = $mock_name;
     $this->_method_name = $method_name;
     $this->_args = null;
     $this->_hash = null;
@@ -291,8 +293,8 @@ class pt_mock_expectation extends pt_mock_stub {
   private $_expected_times;
 
 
-  public function __construct($method_name, $logger = null) {
-    parent::__construct($method_name, $logger);
+  public function __construct($mock_name, $method_name, $logger = null) {
+    parent::__construct($mock_name, $method_name, $logger);
     $this->_prefix_error = "Expectation [$method_name]: ";
     $this->_times = 1;
     $this->_expected_times = 1;
@@ -323,13 +325,13 @@ class pt_mock_expectation extends pt_mock_stub {
 
   public function _get_result_of_call() {
     if (is_null($this->_times)) {
-      $message = "Method ($this->_method_name) called but is expected to not be called";
+      $message = "[{$this->_mock_name}]\n\nMethod ({$this->_method_name}) called but is expected to not be called";
       $this->_log("err", $message);
       $this->_errors[] = $message;
       throw new pt_mock_exception($message);
 
     } else if ($this->_times === 0) {
-      $message = "Method ($this->_method_name) expected to be called {$this->_times} times but called at least one more";
+      $message = "[{$this->_mock_name}]\n\nMethod ({$this->_method_name}) expected to be called {$this->_times} times but called at least one more";
       $this->_log("err", $message);
       $this->_errors[] = $message;
       throw new pt_mock_exception($message);
@@ -344,7 +346,7 @@ class pt_mock_expectation extends pt_mock_stub {
   public function verify() {
     if ($this->_times >= 1) {
       $times_called = $this->_expected_times - $this->_times;
-      $message = "Method ($this->_method_name) expected to be called {$this->_expected_times} times, but called {$times_called}";
+      $message = "[{$this->_mock_name}]\n\nMethod ({$this->_method_name}) expected to be called {$this->_expected_times} times, but called {$times_called}";
       $this->_log("err", $message);
       throw new pt_mock_exception($message);
     }
@@ -360,5 +362,3 @@ class pt_mock_expectation extends pt_mock_stub {
 // pt_mock_exception
 // ---------------------------------------------------------------
 class pt_mock_exception extends Exception {}
-
-?>
