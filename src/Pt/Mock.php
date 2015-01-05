@@ -134,20 +134,26 @@ class Mock extends Common
                 return $options['_null_']->getResultOfCall();
             }
 
+
             if (count($options) === 0) {
                 $message = "[{$this->name}]\n\nCannot find any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true);
                 $this->errors[] = "[{$this->name}]: {$message}";
                 throw new MockException($message);
             } elseif (count($options) === 1) {
                 $option = array_shift($options);
-                $message = "[{$this->name}]\n\nExpected parameters for [{$name}]:\n".print_r($option->getArgs(), true)."\n But received :".print_r($args, true);
+                $diff = $this->getDiff($option->getArgs(), $args);
+                $message = "[{$this->name}]\n\nParameters mismatch for [{$name}]: {$diff}";
                 $this->errors[] = "[{$this->name}]: {$message}";
                 throw new MockException($message);
             } else {
                 $message  = "[{$this->name}]\n\nCannot match any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true)."\n";
                 $message .= "Similar expectations are :\n";
                 foreach ($options as $option) {
-                    $message .= get_class($option)." with args:\n".print_r($option->getArgs(), true)."\n";
+                    $diff = $this->getDiff($option->getArgs(), $args);
+                    $message .= get_class($option);
+                    if (!is_null($diff)) {
+                        $message .= " with args:\n".$diff."\n";
+                    }
                 }
 
                 $this->errors[] = "[{$this->name}]: {$message}";
@@ -157,5 +163,18 @@ class Mock extends Common
             $this->log('err', $e->getMessage());
             throw $e;
         }
+    }
+
+    private function getDiff($expected, $actual)
+    {
+        $factory = new \SebastianBergmann\Comparator\Factory();
+        try {
+            $comparator = $factory->getComparatorFor($expected, $actual);
+            $comparator->assertEquals($expected, $actual);
+        } catch (\SebastianBergmann\Comparator\ComparisonFailure $failure) {
+            $diff = $failure->getDiff();
+            return $diff;
+        }
+        return null;
     }
 }
