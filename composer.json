@@ -1,0 +1,22 @@
+{
+    "name": "trilopin/pt_mock",
+    "type": "library",
+    "description": "Easy mock for php testing",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gabi Ramos",
+            "email": "gabi@gabiramos.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.6"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.*",
+        "fabpot/php-cs-fixer": "dev-master"
+    },
+    "autoload": {
+        "psr-4": { "Pt\\": "src/Pt/" }
+    }
+}

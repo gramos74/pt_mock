@@ -1,0 +1,5 @@
+composer.lock
+vendor/
+*.nfs
+.php_cs.cache
+test/log/
