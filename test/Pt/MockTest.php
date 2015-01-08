@@ -6,10 +6,10 @@ class MockTest extends \PHPUnit_Framework_TestCase
 {
 
 
-  public function tearDown()
-  {
-      Mock::resetAll();
-  }
+    public function tearDown()
+    {
+        Mock::resetAll();
+    }
 
 
 
@@ -25,21 +25,14 @@ Array
         $mock->any_non_declared_method();
     }
 
-    public function test_calling_mock_with_stub_but_bad_arguments()
+    public function test_calling_mock_with_stub_but_missing_arguments()
     {
-        $error = "[Test]
-
-Expected parameters for [method]:
-Array
-(
-    [0] => param1
-    [1] => param2
-)
-
- But received :Array
-(
-    [0] => param1
-)
+        $error = "
+@@ @@
+ Array (
+     0 => 'param1'
+-    1 => 'param2'
+ )
 ";
 
         $mock = new Mock('Test');
@@ -49,7 +42,45 @@ Array
         $mock->method("param1");
     }
 
+    public function test_calling_mock_with_stub_but_bad_complex_arguments()
+    {
+        $error = "
+@@ @@
+ Array (
+     0 => true
+     1 => Array (
+-        'index' => 'value'
++        'index' => 'value_other'
+         'index2' => Array (
+             0 => 2
+-            1 => 3
+-            2 => 6
++            1 => 'str'
+         )
+         'index3' => true
+     )
+     2 => 5
+ )
+";
 
+        $mock = new Mock('Test');
+        $mock->stubs('method')->with(
+                true,
+                array('index' => 'value',
+                      'index2' => array(2, 3, 6),
+                      'index3' => true),
+                5)
+            ->returns("hola");
+
+        $this->setExpectedException('\Pt\MockException', $error);
+        $mock->method(
+            true,
+            array('index' => 'value_other',
+                  'index2' => array(2, 'str'),
+                  'index3' => true),
+            5
+            );
+    }
 
     public function test_calling_mock_with_two_stubs_but_bad_arguments()
     {
@@ -63,20 +94,25 @@ Array
 
 Similar expectations are :
 Pt\Stub with args:
-Array
-(
-    [0] => param1
-    [1] => param2
-    [2] => param3
-)
+
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 'param1'
+-    1 => 'param2'
+-    2 => 'param3'
+ )
 
 Pt\Stub with args:
-Array
-(
-    [0] => param1
-    [1] => param2
-)
 
+--- Expected
++++ Actual
+@@ @@
+ Array (
+     0 => 'param1'
+-    1 => 'param2'
+ )
 ";
 
         $mock = new Mock('Test');
