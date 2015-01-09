@@ -6,7 +6,7 @@ class Mock extends Common
 {
 
     private static $mocks = array();
-    private $name;
+    private $mockName;
     private $expects;
     private $stubs;
     private $errors = array();
@@ -16,7 +16,7 @@ class Mock extends Common
     {
         parent::__construct($logger);
 
-        $this->name = $name;
+        $this->mockName = $name;
         $this->expects = array();
         $this->stubs = array();
         $this->prefixError = "mock [{$name}]: ";
@@ -27,7 +27,7 @@ class Mock extends Common
     public function expects($methodName)
     {
         $this->log('debug', "Defined ({$methodName}) as expectation");
-        $expect = new Expectation($this->name, $methodName, $this->logger);
+        $expect = new Expectation($this->mockName, $methodName, $this->logger);
         $this->expects[$methodName][] = $expect;
         return $expect;
     }
@@ -36,7 +36,7 @@ class Mock extends Common
     public function stubs($methodName)
     {
         $this->log('debug', "Defined ({$methodName}) as stub");
-        $stub = new Stub($this->name, $methodName, $this->logger);
+        $stub = new Stub($this->mockName, $methodName, $this->logger);
         $this->stubs[$methodName][] = $stub;
         return $stub;
     }
@@ -135,22 +135,22 @@ class Mock extends Common
             }
 
             if (count($options) === 0) {
-                $message = "[{$this->name}]\n\nCannot find any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true);
-                $this->errors[] = "[{$this->name}]: {$message}";
+                $message = "[{$this->mockName}]\n\nCannot find any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true);
+                $this->errors[] = "[{$this->mockName}]: {$message}";
                 throw new MockException($message);
             } elseif (count($options) === 1) {
                 $option = array_shift($options);
-                $message = "[{$this->name}]\n\nExpected parameters for [{$name}]:\n".print_r($option->getArgs(), true)."\n But received :".print_r($args, true);
-                $this->errors[] = "[{$this->name}]: {$message}";
+                $message = "[{$this->mockName}]\n\nExpected parameters for [{$name}]:\n".print_r($option->getArgs(), true)."\n But received :".print_r($args, true);
+                $this->errors[] = "[{$this->mockName}]: {$message}";
                 throw new MockException($message);
             } else {
-                $message  = "[{$this->name}]\n\nCannot match any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true)."\n";
+                $message  = "[{$this->mockName}]\n\nCannot match any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true)."\n";
                 $message .= "Similar expectations are :\n";
                 foreach ($options as $option) {
                     $message .= get_class($option)." with args:\n".print_r($option->getArgs(), true)."\n";
                 }
 
-                $this->errors[] = "[{$this->name}]: {$message}";
+                $this->errors[] = "[{$this->mockName}]: {$message}";
                 throw new MockException($message);
             }
         } catch (MockException $e) {
