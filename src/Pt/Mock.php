@@ -143,8 +143,8 @@ class Mock extends Common
                 $option = array_shift($options);
 
                 $diff = $this->getDiff($option->getArgs(), $args);
-                $message = "[{$this->name}]\n\nParameters mismatch for [{$name}]: {$diff}";
-                $this->errors[] = "[{$this->name}]: {$message}";
+                $message = "[{$this->mockName}]\n\nParameters mismatch for [{$name}]: {$diff}";
+                $this->errors[] = "[{$this->mockName}]: {$message}";
                 throw new MockException($message);
             } else {
                 $message  = "[{$this->mockName}]\n\nCannot match any stub or expecation for call [{$name}] with arguments:\n".print_r($args, true)."\n";
